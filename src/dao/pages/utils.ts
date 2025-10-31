@@ -158,6 +158,8 @@ export function getDAOType(path: string) {
   switch (path) {
     case Routes.Multisig:
       return DAOType.MultiSig;
+    case Routes.HuffyDAO:
+      return DAOType.MultiSig;
     case Routes.GovernanceToken:
       return DAOType.GovernanceToken;
     case Routes.NFT:

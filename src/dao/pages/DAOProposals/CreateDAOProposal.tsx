@@ -12,6 +12,7 @@ import {
   Argument,
   TupleArgument,
 } from "./types";
+import type { CreateDAODexSettingsForm } from "./types";
 import { ErrorLayout, LoadingSpinnerLayout, NotFound, Page } from "@dex/layouts";
 import { Routes } from "@dao/routes";
 import { useForm } from "react-hook-form";
@@ -46,6 +47,10 @@ import { PinataPinResponse } from "@pinata/sdk";
 import { Button, Flex } from "@chakra-ui/react";
 import { ethers } from "ethers";
 import { SolidityTuple } from "abitype/zod";
+import { useCreateMultiSigBatchProposal } from "@dao/hooks";
+import { SINGLE_DAO_DEX_SETTINGS } from "@dao/config/singleDao";
+import { ContractId } from "@hashgraph/sdk";
+import { DexService } from "@dex/services";
 
 export function CreateDAOProposal() {
   const { accountId: daoAccountId = "" } = useParams();
@@ -229,6 +234,15 @@ export function CreateDAOProposal() {
     reset: resetCreateMultiSigGenericProposal,
   } = sendGenericProposalResutls;
 
+  const sendBatchProposalResults = useCreateMultiSigBatchProposal(handleCreateDAOProposalSuccess);
+  const {
+    isLoading: isCreateMultiSigBatchProposalLoading,
+    isError: isCreateMultiSigBatchProposalFailed,
+    error: isCreateMultiSigBatchProposalError,
+    mutate: createMultiSigBatchProposal,
+    reset: resetCreateMultiSigBatchProposal,
+  } = sendBatchProposalResults;
+
   const isLoading =
     isCreateMultisigTokenTransferLoading ||
     isCreateGOVTokenTransferLoading ||
@@ -243,7 +257,8 @@ export function CreateDAOProposal() {
     isCreateMultiSigTextProposalLoading ||
     isCreateMultiSigUpgradeProposalLoading ||
     isPinningToIPFSLoading ||
-    isCreateMultiSigGenericProposalLoading;
+    isCreateMultiSigGenericProposalLoading ||
+    isCreateMultiSigBatchProposalLoading;
 
   const isError =
     isCreateMultisigTokenTransferFailed ||
@@ -259,7 +274,8 @@ export function CreateDAOProposal() {
     isCreateMultiSigTextProposalFailed ||
     isCreateMultiSigUpgradeProposalFailed ||
     isPinningToIPFSFailed ||
-    isCreateMultiSigGenericProposalFailed;
+    isCreateMultiSigGenericProposalFailed ||
+    isCreateMultiSigBatchProposalFailed;
 
   function getDexDetailsRoute() {
     return `/${currentDaoType}/${daoAccountId}/${Routes.CreateDAOProposal}/${Routes.DAODexDetails}`;
@@ -333,6 +349,7 @@ export function CreateDAOProposal() {
     resetCreateMultiSigUpgradeProposal();
     resetPinMetadataToIPFS();
     resetCreateMultiSigGenericProposal();
+    resetCreateMultiSigBatchProposal();
   }
 
   function reset() {
@@ -355,6 +372,7 @@ export function CreateDAOProposal() {
     if (isCreateMultiSigUpgradeProposalError) return isCreateMultiSigUpgradeProposalError.message;
     if (isPinningToIPFSError) return isPinningToIPFSError.response?.data.error || isPinningToIPFSError.message;
     if (isCreateMultiSigGenericProposalError) return isCreateMultiSigGenericProposalError.message;
+    if (isCreateMultiSigBatchProposalError) return isCreateMultiSigBatchProposalError.message;
     return "";
   }
 
@@ -545,6 +563,7 @@ export function CreateDAOProposal() {
           try {
             pinningResponse = await pinMetadataToIPFS({ fileName: title, metadata });
           } catch (error) {
+            console.error(error);
             return;
           }
         }
@@ -647,6 +666,135 @@ export function CreateDAOProposal() {
           default:
             return;
         }
+      }
+      case DAOProposalType.DEXSettings: {
+        const {
+          title,
+          description,
+          linkToDiscussion = "",
+          maxTradeBps,
+          maxSlippageBps,
+          tradeCooldownSec,
+          whitelistAdd,
+          whitelistRemove,
+        } = data as CreateDAODexSettingsForm;
+
+        const targets: string[] = [];
+        const values: number[] = [];
+        const calldatas: string[] = [];
+
+        try {
+          const psCfg = SINGLE_DAO_DEX_SETTINGS?.parameterStore;
+          if (psCfg?.contractId && psCfg?.abi) {
+            const wantsParamsUpdate =
+              maxTradeBps !== undefined || maxSlippageBps !== undefined || tradeCooldownSec !== undefined;
+            if (wantsParamsUpdate) {
+              const psAddress = ContractId.fromString(psCfg.contractId).toSolidityAddress();
+              const { JsonRpcSigner } = DexService.getJsonRpcProviderAndSigner();
+              const readContract = new ethers.Contract(psAddress, psCfg.abi, JsonRpcSigner);
+
+              let currentMaxTrade: number | undefined;
+              let currentMaxSlippage: number | undefined;
+              let currentCooldown: number | undefined;
+              try {
+                if (psCfg.methods?.maxTradeBps) {
+                  const v = await readContract[psCfg.methods.maxTradeBps]();
+                  currentMaxTrade = Number(v.toString());
+                }
+              } catch {
+                console.error("Failed to read maxTradeBps");
+              }
+              try {
+                if (psCfg.methods?.maxSlippageBps) {
+                  const v = await readContract[psCfg.methods.maxSlippageBps]();
+                  currentMaxSlippage = Number(v.toString());
+                }
+              } catch {
+                console.error("Failed to read maxSlippageBps");
+              }
+              try {
+                if (psCfg.methods?.tradeCooldownSec) {
+                  const v = await readContract[psCfg.methods.tradeCooldownSec]();
+                  currentCooldown = Number(v.toString());
+                }
+              } catch {
+                console.error("Failed to read tradeCooldownSec");
+              }
+              if (currentMaxTrade === undefined || currentMaxSlippage === undefined || currentCooldown === undefined) {
+                try {
+                  const readAllMethod = psCfg.methods?.readAll || "getRiskParameters";
+                  const tuple = await readContract[readAllMethod]();
+                  if (Array.isArray(tuple) && tuple.length >= 3) {
+                    currentMaxTrade = Number(tuple[0].toString());
+                    currentMaxSlippage = Number(tuple[1].toString());
+                    currentCooldown = Number(tuple[2].toString());
+                  }
+                } catch {
+                  console.error("Failed to read all parameters");
+                }
+              }
+
+              const newMaxTrade = maxTradeBps === undefined ? currentMaxTrade ?? 0 : Number(maxTradeBps);
+              const newMaxSlippage = maxSlippageBps === undefined ? currentMaxSlippage ?? 0 : Number(maxSlippageBps);
+              const newCooldown = tradeCooldownSec === undefined ? currentCooldown ?? 0 : Number(tradeCooldownSec);
+
+              const psInterface = new ethers.utils.Interface(psCfg.abi as any);
+              const paramsCalldata = psInterface.encodeFunctionData("setParameters", [
+                newMaxTrade,
+                newMaxSlippage,
+                newCooldown,
+              ]);
+
+              targets.push(psAddress);
+              values.push(0);
+              calldatas.push(paramsCalldata);
+            }
+          }
+        } catch (e) {
+          console.error(e);
+        }
+
+        try {
+          const pwCfg = SINGLE_DAO_DEX_SETTINGS?.pairWhitelist;
+          if (pwCfg?.contractId && pwCfg?.abi) {
+            const pwAddress = ContractId.fromString(pwCfg.contractId).toSolidityAddress();
+            const pwInterface = new ethers.utils.Interface(pwCfg.abi as any);
+
+            const adds = (whitelistAdd || []).filter((p) => (p?.tokenA || "").trim() && (p?.tokenB || "").trim());
+            for (const p of adds) {
+              const calldata = pwInterface.encodeFunctionData("addPair", [p.tokenA.trim(), p.tokenB.trim()]);
+              targets.push(pwAddress);
+              values.push(0);
+              calldatas.push(calldata);
+            }
+
+            const removes = (whitelistRemove || []).filter((p) => (p?.tokenA || "").trim() && (p?.tokenB || "").trim());
+            for (const p of removes) {
+              const calldata = pwInterface.encodeFunctionData("removePair", [p.tokenA.trim(), p.tokenB.trim()]);
+              targets.push(pwAddress);
+              values.push(0);
+              calldatas.push(calldata);
+            }
+          }
+        } catch (e) {
+          console.error(e);
+        }
+
+        if (targets.length === 0) {
+          return;
+        }
+
+        const batchData = {
+          multiSigDAOContractId: daoAccountId,
+          targets,
+          values,
+          calldatas,
+          title,
+          description,
+          linkToDiscussion,
+        };
+
+        return createMultiSigBatchProposal(batchData);
       }
     }
   }

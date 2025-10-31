@@ -3,12 +3,18 @@ import type { ContractInterface } from "ethers";
 import ParameterStore from "./abi/ParameterStore.json";
 import PairWhitelist from "./abi/PairWhitelist.json";
 
-export type SingleDAOType = typeof Routes.GovernanceToken | typeof Routes.Multisig | typeof Routes.NFT;
+// eslint-disable-next-line max-len
+export type SingleDAOType =
+  | typeof Routes.GovernanceToken
+  | typeof Routes.Multisig
+  | typeof Routes.NFT
+  | typeof Routes.HuffyDAO;
 
 function normalizeDAOType(value?: string): SingleDAOType {
   const v = (value || "").trim().toLowerCase();
   if (v === Routes.Multisig) return Routes.Multisig as SingleDAOType;
   if (v === Routes.NFT) return Routes.NFT as SingleDAOType;
+  if (v === Routes.HuffyDAO) return Routes.HuffyDAO as SingleDAOType;
   return Routes.GovernanceToken as SingleDAOType;
 }
 

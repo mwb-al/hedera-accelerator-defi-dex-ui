@@ -18,7 +18,7 @@ export function ProposalDetailsHeader(props: ProposalDetailsHeaderProps) {
       ? Routes.GovernanceToken
       : daoType === DAOType.NFT
       ? Routes.NFT
-      : Routes.Multisig
+      : Routes.HuffyDAO
   }/${daoAccountId}/${Routes.Proposals}`;
   return (
     <>

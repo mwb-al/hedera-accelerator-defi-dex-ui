@@ -33,3 +33,4 @@ export * from "./useTimeInputPattern";
 export * from "./useTransferOwnership";
 export * from "./types";
 export * from "./IPFS";
+export * from "./useCreateMultiSigBatchProposal";

@@ -14,6 +14,7 @@ export const Routes = {
   NFT: "nft",
   NFTVoting: "nft/voting",
   NFTReview: "nft/review",
+  HuffyDAO: "huffy-dao",
   Proposals: "proposals",
   Assets: "assets",
   Members: "members",

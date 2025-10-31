@@ -19,6 +19,16 @@ export const router = createBrowserRouter(
           <Route path={Routes.Settings} element={<Pages.Settings />} />
         </Route>
       )}
+      {SINGLE_DAO_TYPE === Routes.HuffyDAO && (
+        <Route path={`${Routes.HuffyDAO}/:accountId`} element={<Pages.MultiSigDAODashboard />}>
+          <Route index element={<Navigate to={Routes.Overview} />} />
+          <Route path={Routes.Overview} element={<Pages.DashboardOverview />} />
+          <Route path={Routes.Proposals} element={<Pages.ProposalList />} />
+          <Route path={Routes.Assets} element={<Pages.AssetsList />} />
+          <Route path={Routes.Members} element={<Pages.MembersList />} />
+          <Route path={Routes.Settings} element={<Pages.Settings />} />
+        </Route>
+      )}
       {SINGLE_DAO_TYPE === Routes.GovernanceToken && (
         <Route path={`${Routes.GovernanceToken}/:accountId`} element={<Pages.GovernanceDAODashboard />}>
           <Route index element={<Navigate to={Routes.Overview} />} />
@@ -78,6 +88,21 @@ export const router = createBrowserRouter(
           <Route path={Routes.DAODexWhitelistDetails} element={<Pages.DAODexWhitelistDetailsForm />} />
           <Route path={Routes.DAODexSettingsReview} element={<Pages.DAODexSettingsReviewForm />} />
         </Route>
+      )}
+      {SINGLE_DAO_TYPE === Routes.HuffyDAO && (
+        <Route path={`${Routes.HuffyDAO}/:accountId/new-proposal`} element={<Pages.CreateDAOProposal />}>
+          <Route index element={<Navigate to={Routes.DAODexDetails} />} />
+          <Route path={Routes.DAODexDetails} element={<Pages.DAODexDetailsForm />} />
+          <Route path={Routes.DAODexParamsDetails} element={<Pages.DAODexParamsDetailsForm />} />
+          <Route path={Routes.DAODexWhitelistDetails} element={<Pages.DAODexWhitelistDetailsForm />} />
+          <Route path={Routes.DAODexSettingsReview} element={<Pages.DAODexSettingsReviewForm />} />
+        </Route>
+      )}
+      {SINGLE_DAO_TYPE === Routes.HuffyDAO && (
+        <Route
+          path={`${Routes.HuffyDAO}/:accountId/proposals/:transactionHash`}
+          element={<Pages.ProposalDetailsPage />}
+        />
       )}
       {SINGLE_DAO_TYPE === Routes.NFT && (
         <Route path={`${Routes.NFT}/:accountId/new-proposal`} element={<Pages.CreateDAOProposal />}>
