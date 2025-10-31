@@ -6,9 +6,7 @@ import Configuration from "./Configuration";
 import { TOKEN_USER_ID } from "../constants";
 
 const JsonRpcHashioUrl = {
-  mainnet: "https://mainnet.hashio.io/api",
   testnet: "https://testnet.hashio.io/api",
-  previewnet: "https://previewnet.hashio.io/api",
 };
 
 export type JsonRpcServiceType = ReturnType<typeof createJsonRpcService>;

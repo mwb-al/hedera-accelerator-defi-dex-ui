@@ -5,7 +5,7 @@ import { useDexContext } from "@dex/hooks";
 import { getDefaultLedgerId } from "shared";
 import { Text, Color } from "@shared/ui-kit";
 
-const networkSelectOptions: LedgerId[] = [LedgerId.MAINNET, LedgerId.TESTNET];
+const networkSelectOptions: LedgerId[] = [LedgerId.TESTNET];
 const defaultSelectedNetwork = getDefaultLedgerId();
 
 export function NetworkSwitcher() {

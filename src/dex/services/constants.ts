@@ -27,13 +27,8 @@ enum ContractNames {
 }
 
 function getProxyId(contractName: ContractNames): string {
-  const activeNetwork = getDefaultLedgerId();
-
-  return (
-    (activeNetwork.toString() === "mainnet" ? contractsMainnet : contractsUAT).find(
-      (contract: ContractMetaData) => contract.name === contractName
-    )?.transparentProxyId ?? ""
-  );
+  getDefaultLedgerId();
+  return contractsUAT.find((contract: ContractMetaData) => contract.name === contractName)?.transparentProxyId ?? "";
 }
 
 export const Contracts = {

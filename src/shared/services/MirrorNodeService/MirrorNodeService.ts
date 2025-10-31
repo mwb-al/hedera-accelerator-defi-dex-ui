@@ -23,18 +23,11 @@ import { Gas, GasPrice } from "@dex/services";
 import { getDefaultLedgerId } from "shared";
 
 const mirrorNodeRPCUrls = {
-  mainnet: "https://mainnet.mirrornode.hedera.com",
   testnet: "https://testnet.mirrornode.hedera.com",
 };
 
 const nodeAPIs = {
-  mainnet: axios.create({
-    baseURL: mirrorNodeRPCUrls.mainnet,
-  }),
   testnet: axios.create({
-    baseURL: mirrorNodeRPCUrls.testnet,
-  }),
-  previewnet: axios.create({
     baseURL: mirrorNodeRPCUrls.testnet,
   }),
 };
@@ -45,7 +38,7 @@ const DEX_PRECISION_DEFAULT = 1e8;
 
 type MirrorNodeServiceType = ReturnType<typeof createMirrorNodeService>;
 
-type Networks = "mainnet" | "testnet" | "previewnet";
+type Networks = "testnet";
 
 type FetchParams = { network: Networks };
 

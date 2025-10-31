@@ -5,9 +5,9 @@ const HashScanUrl = "https://hashscan.io";
 
 type HashScanTransactionLink = `https://hashscan.io/${
   | "testnet"
-  | "mainnet"}/transactionsById/${string}-${string}-${string}`;
-type HashScanAccountIdLink = `https://hashscan.io/${"testnet" | "mainnet"}/account/${string}`;
-type HashScanTokenIdLink = `https://hashscan.io/${"testnet" | "mainnet"}/token/${string}`;
+  | "testnet"}/transactionsById/${string}-${string}-${string}`;
+type HashScanAccountIdLink = `https://hashscan.io/${"testnet" | "testnet"}/account/${string}`;
+type HashScanTokenIdLink = `https://hashscan.io/${"testnet" | "testnet"}/token/${string}`;
 type HashScanLink = HashScanTransactionLink | HashScanAccountIdLink | HashScanTokenIdLink;
 
 /**
