@@ -16,3 +16,7 @@ export * from "./DAOContractUpgradeDetailsForm";
 export * from "./DAOTokenAssociateDetailsForm";
 export * from "./DAOTokenAssociateReviewForm";
 export * from "./DAOGenericProposal";
+export * from "./DAODexParamsDetailsForm";
+export * from "./DAODexWhitelistDetailsForm";
+export * from "./DAODexSettingsReviewForm";
+export * from "./DAODexDetailsForm";

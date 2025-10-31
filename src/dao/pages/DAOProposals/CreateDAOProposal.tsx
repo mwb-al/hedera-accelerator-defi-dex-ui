@@ -65,10 +65,15 @@ export function CreateDAOProposal() {
 
   const createDaoProposalForm = useForm<CreateDAOProposalForm>({
     defaultValues: {
-      type: DAOProposalType.Text,
+      type: DAOProposalType.DEXSettings,
       title: "",
       description: "",
       linkToDiscussion: "",
+      maxTradeBps: undefined,
+      maxSlippageBps: undefined,
+      tradeCooldownSec: undefined,
+      whitelistAdd: [],
+      whitelistRemove: [],
     },
   });
   const {
@@ -256,24 +261,62 @@ export function CreateDAOProposal() {
     isPinningToIPFSFailed ||
     isCreateMultiSigGenericProposalFailed;
 
-  const steps = [
-    {
-      label: "Type",
-      route: `/${currentDaoType}/${daoAccountId}/${Routes.CreateDAOProposal}/${Routes.DAOProposalType}`,
-      validate: async () => trigger(["type"]),
-    },
-    {
-      label: "Details",
-      route: ProposalsDetailsForm(),
-      validate: async () => ValidateDetailsForm(),
-    },
-    {
-      label: "Review",
-      route: ProposalsReviewForm(),
-      isLoading,
-      isError,
-    },
-  ];
+  function getDexDetailsRoute() {
+    return `/${currentDaoType}/${daoAccountId}/${Routes.CreateDAOProposal}/${Routes.DAODexDetails}`;
+  }
+  function getDexParamsRoute() {
+    return `/${currentDaoType}/${daoAccountId}/${Routes.CreateDAOProposal}/${Routes.DAODexParamsDetails}`;
+  }
+  function getDexWhitelistRoute() {
+    return `/${currentDaoType}/${daoAccountId}/${Routes.CreateDAOProposal}/${Routes.DAODexWhitelistDetails}`;
+  }
+  function getDexReviewRoute() {
+    return `/${currentDaoType}/${daoAccountId}/${Routes.CreateDAOProposal}/${Routes.DAODexSettingsReview}`;
+  }
+
+  const steps =
+    type === DAOProposalType.DEXSettings
+      ? [
+          {
+            label: "Details",
+            route: getDexDetailsRoute(),
+            validate: async () => trigger(["title", "description", "linkToDiscussion"]),
+          },
+          {
+            label: "Parameters",
+            route: getDexParamsRoute(),
+            validate: async () => trigger(["maxTradeBps", "maxSlippageBps", "tradeCooldownSec"]),
+          },
+          {
+            label: "Whitelist",
+            route: getDexWhitelistRoute(),
+            validate: async () => Promise.resolve(true),
+          },
+          {
+            label: "Review",
+            route: getDexReviewRoute(),
+            isLoading,
+            isError,
+          },
+        ]
+      : [
+          {
+            label: "Type",
+            route: `/${currentDaoType}/${daoAccountId}/${Routes.CreateDAOProposal}/${Routes.DAOProposalType}`,
+            validate: async () => trigger(["type"]),
+          },
+          {
+            label: "Details",
+            route: ProposalsDetailsForm(),
+            validate: async () => ValidateDetailsForm(),
+          },
+          {
+            label: "Review",
+            route: ProposalsReviewForm(),
+            isLoading,
+            isError,
+          },
+        ];
 
   function resetTransactions() {
     resetMultisigTransferTokenTransaction();

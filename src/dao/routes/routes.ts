@@ -46,4 +46,8 @@ export const Routes = {
   DAOTokenAssociateReview: "token-associate/review",
   DAOGenericProposalDetails: "generic-proposal/details",
   DAOGenericProposalReview: "generic-proposal/review",
+  DAODexDetails: "dex-settings/details",
+  DAODexParamsDetails: "dex-settings/params",
+  DAODexWhitelistDetails: "dex-settings/whitelist",
+  DAODexSettingsReview: "dex-settings/review",
 };

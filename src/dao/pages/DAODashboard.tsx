@@ -6,10 +6,10 @@ import { NavLink, useLocation, useNavigate, useParams } from "react-router-dom";
 import { PropsWithChildren } from "react";
 import { DAO, DAOType, GovernanceDAODetails, MultiSigDAODetails, NFTDAODetails } from "@dao/services";
 import { DashboardHeader } from "./DashboardHeader";
-import { Routes } from "@dao/routes";
 import { VotingPower } from "@dex/pages/Governance/VotingPower";
 import { NFTVotingPower } from "./NFTVotingPower";
 import { useFetchContract } from "@dao/hooks";
+import { DEFAULT_DAO_OVERVIEW_PATH } from "@dao/config/singleDao";
 
 const TabsHeight = 44;
 
@@ -82,7 +82,7 @@ export function DAODashboard(props: DAODashboardProps) {
     }
   }
   function onBackToDAOsLinkClick() {
-    navigate(Routes.Home);
+    navigate(DEFAULT_DAO_OVERVIEW_PATH);
   }
 
   if (isError) {
@@ -98,7 +98,7 @@ export function DAODashboard(props: DAODashboardProps) {
       <NotFound
         message={`We didn't find any data for this DAO (${daoAccountId}).`}
         preLinkText={""}
-        linkText={"Click here to return to the DAOs list page."}
+        linkText={"Go to the DAO overview"}
         onLinkClick={onBackToDAOsLinkClick}
       />
     );

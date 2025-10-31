@@ -1,7 +1,6 @@
 import { Button, Flex, HStack, Image, VStack } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import {
-  Breadcrumb,
   CheckRightIcon,
   Color,
   DefaultLogoIcon,
@@ -14,7 +13,6 @@ import {
 import { DAOType } from "@dao/services";
 import { MintNFTModal } from "./MintNFTModal";
 import { useToken } from "@dex/hooks";
-import { Routes } from "@dao/routes";
 import { useFetchContract } from "@dao/hooks";
 
 interface DashboardHeaderProps {
@@ -100,9 +98,6 @@ export function DashboardHeader(props: DashboardHeaderProps) {
           </HStack>
         </Flex>
         <Flex bg={colorBG} flexGrow="1" justifyContent="right" gap="8">
-          <Flex height="40px" alignItems="center">
-            <Breadcrumb to={Routes.Home} label="Back to DAOs" />
-          </Flex>
           {showMintNFTButton && token && (
             <Flex height="40px" alignItems="center">
               <MintNFTModal token={token} handleMintNFT={handleMintNFT} />
