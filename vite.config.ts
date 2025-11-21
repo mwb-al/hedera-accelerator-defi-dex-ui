@@ -15,6 +15,7 @@ const resolvedAliases = Object.fromEntries(
 dns.setDefaultResultOrder("verbatim");
 
 export default defineConfig({
+  base: "./",
   test: {
     globals: true,
     environment: "jsdom",
@@ -25,7 +26,6 @@ export default defineConfig({
     },
   },
   build: {
-    base: "./",
     outDir: "build",
     commonjsOptions: {
       transformMixedEsModules: true,
